@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Spev">
+<title>Spev</title>
+<style>
+:root{--bg:#eef1f5;--card:#fff;--ink:#17212c;--mute:#5d6b7a;--line:#d5dce5;--acc:#1f4fd8;--ai:#fff;--soft:#e3eafc;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121821;--card:#1b2431;--ink:#e8edf3;--mute:#9aa8b8;--line:#2d3a4a;--acc:#7da2ff;--ai:#0d1422;--soft:#22304a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121821;--card:#1b2431;--ink:#e8edf3;--mute:#9aa8b8;--line:#2d3a4a;--acc:#7da2ff;--ai:#0d1422;--soft:#22304a;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:540px;margin:0 auto;padding:16px}
+h1{font-size:1.6rem;margin:8px 0 4px;letter-spacing:-.01em}
+h2{font-size:1.25rem;margin:0 0 4px}
+h3{font-size:1rem;margin:16px 0 4px}
+.sub,.mute{color:var(--mute);font-size:.92rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.big{display:block;width:100%;text-align:left;padding:16px;margin-bottom:10px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.big b{display:block;font-size:1.1rem}
+.big span{color:var(--mute);font-size:.9rem}
+button{padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+button.p{background:var(--acc);color:var(--ai);border-color:var(--acc)}
+button.x{padding:6px 10px;font-weight:400}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.row{display:flex;gap:8px}.row>button{flex:1}
+.back{background:none;border:none;color:var(--acc);padding:6px 0;font-weight:600}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:block;font-size:.85rem;color:var(--mute);margin-bottom:4px}
+select,input,textarea{width:100%;padding:9px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+input[type=range]{padding:0}
+.time{font-size:3rem;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin:4px 0}
+.tag{display:inline-block;background:var(--soft);border-radius:8px;padding:3px 9px;font-size:.88rem;margin:2px 4px 2px 0}
+ul,ol{padding-left:20px;margin:4px 0}li{margin:5px 0}
+.dots{display:flex;gap:10px;margin:14px 0;justify-content:center}
+.dots i{width:30px;height:30px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--acc)}
+.lab{text-align:center;font-size:1.3rem;font-weight:700}
+.warn{font-size:.85rem;color:var(--mute)}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+var NOTES=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+var CATS=[
+{id:"dych",n:"Dych a uvoľnenie",d:"telo, čeľusť, jazyk, opora, priestor v hrdle"},
+{id:"slamka",n:"Slamka (SOVT)",d:"ľahká rozcvička, šetrí hlas, vyhladzuje zlom"},
+{id:"hlas",n:"Vokálne cvičenia",d:"twang, registre, nasmerovanie tónu, pieseň"},
+{id:"metro",n:"Gap metronóm",d:"rytmus: tlieskanie, ticho, test a progres"}];
+var EX=[
+{id:"d1",c:"dych",t:"Uvoľnenie tela, čeľuste a jazyka",m:3,ty:"none",
+ak:["Postav sa, nohy na šírku bedier, kolená mäkké. Päťkrát pretoč plecia dozadu a pomaly krúž hlavou bez tlaku.","Prstami masíruj kĺb čeľuste (pred ušami) kruhovo 20 s, potom nechaj čeľusť visieť ťažkú.","Vyplaz jazyk a nechaj ho mäkko ležať 10 s. Potom ho vráť: špička sa dotkne spodných zubov, stred jazyka je široký a nízko.","Trikrát zívni a po každom povzdychni „haaa“."],
+fo:["Čeľusť visí, nehýbeš ňou silou.","Jazyk nesmie tlačiť pod bradu ani sa ťahať dozadu. Vyplazenie ho „vynuluje“.","„Vanička“ (žliabok v jazyku) nie je nutná. Stačí široký, nízky a mäkký jazyk so špičkou o spodné zuby."],
+pr:"Čeľusť je ťažká ako zámok na reťazi, jazyk ako mokrý uterák na dne úst.",
+ch:["Tlak pod bradou.","Ramená idú hore pri nádychu.","Ťahanie čeľuste dopredu."]},
+{id:"d2",c:"dych",t:"Dych a opora: „sss“",m:2,ty:"none",car:"V aute bez predklonu: pokojný výdych na „sss“ pri jazde.",
+ak:["Sadni, predkloň sa, lakte na kolená, chrbát dlhý.","Nádych do rebier a chrbta (nie do ramien), asi 3 s.","Vydýchni na „sss“ rovnomerne a čo najdlhšie, bez tlaku.","Štyri opakovania, zapíš si najdlhší čas. Potom to isté v stoji."],
+fo:["Rovnomerný prúd, rebrá sa pomaly vracajú.","Brucho nie je tvrdé, nestláčaš ho.","Sleduj dĺžku: za pár týždňov rastie."],
+pr:"Vzduch tečie ako tenký rovný pásik, nie ako vypúšťanie balóna.",
+ch:["Nárazový výdych na začiatku.","Ramená hore.","Zadržiavanie dychu na konci."]},
+{id:"d3",c:"dych",t:"Otvorený priestor v hrdle",m:2,ty:"none",
+ak:["Nádych ako pri jemnom prekvapení „och“. Cítiš chladný vzduch vzadu v hrdle, mäkké podnebie sa zdvihne samo.","Výdych ako povzdych „haaa“, bez zvuku navyše.","Päť opakovaní. Potom zaspievaj tichý „ng“ a otvor ho do „a“ s tým istým priestorom."],
+fo:["Priestor vzadu, nie tlak dolu: hrtan zostáva neutrálny, ako pri ľahkej reči.","Pri pope nechceš zívať počas spevu, len ten pocit priestoru udržať."],
+pr:"Vnútri úst je kupola ako v stane, nie úzka trubica.",
+ch:["Umelé tlačenie hrtana dolu (tmavý, hluchý zvuk).","Tvrdé zívnutie.","Napnuté ramená."]},
+{id:"s1",c:"slamka",t:"Slamka: siréna",m:3,ty:"glide",ga:[12,6],car:"V aute bez vody: len brumľaj cez slamku ľahko.",
+ak:["Slamka (priemer ~6 mm) 2–3 cm vo vode v pohári.","Brumľaj cez slamku a nechaj bubliny ísť rovnomerne.","Nasleduj sirénu, ktorú hrá stránka: pomaly hore, potom dole. Tón začni v nízkej, pohodlnej polohe."],
+fo:["Rovnomerné bubliny, žiadne trhanie.","Zlom hlasu prejde sám, ak ho nehoníš.","Hlasitosť sa s výškou nezvyšuje."],
+pr:"Tón kĺže po rampe, nie po schodoch.",
+ch:["Prskajúce bubliny (príliš veľa vzduchu).","Tlak hore pri vysokých tónoch.","Hlasnejšie s výškou."]},
+{id:"s2",c:"slamka",t:"Slamka: 5-tónová stupnica",m:3,ty:"seq",q:[0,2,4,5,7,5,4,2,0],sy:"cez slamku",
+ak:["Slamka vo vode, brumľaj stupnicu 1-2-3-4-5-4-3-2-1.","Po každom opakovaní ide stupnica o polton vyššie, potom späť."],
+fo:["Nasleduj klavír, ladíš sluchom.","Tón začína mäkko, bez „nárazu“.","Ak bubliny trhajú, uber vzduch a hlasitosť."],
+pr:"Každý tón je guľôčka na rovnej nitke.",
+ch:["Skákanie do tónov bez sluchu.","Tlačenie pri 5. stupni."]},
+{id:"s3",c:"slamka",t:"Lip roll",m:3,ty:"seq",q:[0,2,4,5,7,5,4,2,0],sy:"„brrr“",car:"V aute ľahký lip roll na jednom tóne je v poriadku.",
+ak:["Pery uvoľnené, pritlač prstami líca k lícnym kostiam, aby sa pery mohli triasť.","Brumľaj stupnicu 1-2-3-4-5-4-3-2-1 na plynulý trill."],
+fo:["Trill sa nesmie zastaviť.","Ak sa zastaví, spomaľ a uber vzduch, netlač.","Zlom prejdi jemne."],
+pr:"Hlas plynie na prúde vzduchu, ako loď po vlne.",
+ch:["Prerušovaný trill.","Zvýšená hlasitosť.","Zdvihnutá brada."]},
+{id:"h1",c:"hlas",t:"Zatvorené „ng“",m:2,ty:"seq",q:[0,4,0],sy:"„ng“",
+ak:["Zatvor ústa, jazyk zadnou časťou o mäkké podnebie (ako v anglickom „sing“).","Spievaj 1-3-1 s klavírom, tón je tichý a plynulý."],
+fo:["Brnenie v nose a tvári, nie v hrdle.","Čeľusť visí, jazyk leží mäkko."],
+pr:"Tón vychádza cez nos do prednej časti tváre.",
+ch:["Stlačený krk.","Hluchý tón bez brnenia."]},
+{id:"h2",c:"hlas",t:"Twang „nay“",m:4,ty:"seq",q:[0,4,7,4,0],sy:"„nay“",
+ak:["Zaspievaj „nay“ ako mrzuté dieťa alebo ako čarodejnica: „njééé“. Zvuk je jasný a úzky.","1-3-5-3-1, po každom opakovaní o polton vyššie.","Hlasitosť max. 60 %. Žiadny krik."],
+fo:["Zvuk „prerazí“ bez námahy, krk je mäkký.","Brada dole.","Tu opravuješ tenký zvuk: nepridávaj silu, pridaj zovretie hlasiviek a úzky priestor."],
+pr:"Zvuk je tenký laserový lúč dopredu, nie široký plameň.",
+ch:["Hlasité tlačenie krkom.","Zdvihnutá brada.","Zvýšený hrtan pri vyšších tónoch."]},
+{id:"h3",c:"hlas",t:"„Bu bu bu“",m:2,ty:"seq",q:[7,5,4,2,0],sy:"„bu“",
+ak:["Spievaj 5-4-3-2-1 na krátke „bu“.","Každé „bu“ je ľahké, čeľusť padá sama dole."],
+fo:["Čeľusť netlačíš, padá sama.","Rovnomerný dych, bez nárazu.","Dobré na uvoľnenie jazyka."],
+pr:"Tóny ako kvapky padajúce dole.",
+ch:["Tuhá čeľusť.","Nárazový výdych."]},
+{id:"h4",c:"hlas",t:"„Mi mi mi“ stupnica",m:3,ty:"seq",q:[0,2,4,5,7,5,4,2,0],sy:"„mi mi mi mi mi mi“",
+ak:["Spievaj 1-2-3-4-5-4-3-2-1 na „mi“, posledný tón dlhší na „miiii“.","Rozbeh: vlastná výška, hore ticho."],
+fo:["„ee“ ide ľahko do tenkého zvuku: jazyk vpredu a široký, špička o spodné zuby.","Čeľusť uvoľnená, nie rozťahnutá do úsmevu."],
+pr:"Tón smeruje dopredu do tváre, nie hore do hlavy.",
+ch:["Zdvihnutý jazyk dozadu.","Stiahnutá brada.","Úzka čeľusť."]},
+{id:"h5",c:"hlas",t:"Registre: „ng“ do „ee“",m:3,ty:"glide",ga:[12,9],
+ak:["Začni na „ng“ a okolo zlomu prejdi na „ee“.","Nasleduj pomalú sirénu zo stránky."],
+fo:["Zlom nepreskakuj, nehlasnej.","Jazyk vpredu, špička o spodné zuby."],
+pr:"Dva registre sú dve izby a ty len prechádzaš cez dvere, nie cez múr.",
+ch:["Skok cez zlom.","Tlak v krku pri vyšších tónoch."]},
+{id:"h6",c:"hlas",t:"Fráza z pesničky",m:5,ty:"none",
+ak:["Vyber jednu frázu. Najprv na „nay“, potom na samohlásky, nakoniec s textom.","Nahraj sa na mobil a pusti si to.","Ak sa vráti tlačenie krkom, vráť sa o krok."],
+fo:["Prenášaš techniku do skutočného spevu.","Sleduj farbu, nie hlasitosť."],
+pr:"Spievaš to ľahko, ako keby ťa niekto počúval z druhého konca miestnosti.",
+ch:["Tlačenie na refréne.","Prekrikovanie tónov."]}];
+var $=function(i){return document.getElementById(i)};
+var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]})};
+function ld(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var SET=ld("set",{root:48,up:7,bpm:70}),CUS=ld("cus",[]),OV=ld("ov",{}),LOG=ld("log",[]);
+var ctx=null,run=0,iv=null,left=0,cur=null,MT=null;
+function ac(){if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==="suspended")ctx.resume();return ctx}
+function fr(m){return 440*Math.pow(2,(m-69)/12)}
+function piano(m,d){var c=ac(),t=c.currentTime,f=fr(m),out=c.createGain(),lp=c.createBiquadFilter();
+lp.type="lowpass";lp.frequency.value=Math.min(7000,f*9);
+out.gain.setValueAtTime(0,t);out.gain.linearRampToValueAtTime(.32,t+.006);out.gain.exponentialRampToValueAtTime(.0008,t+d+.5);
+out.connect(lp);lp.connect(c.destination);
+[[1,1],[2,.5],[3,.3],[4,.16],[5,.09],[6,.05]].forEach(function(p,i){var o=c.createOscillator(),g=c.createGain();
+o.type="sine";o.frequency.value=f*p[0]*(1+.0003*i*i);
+g.gain.setValueAtTime(p[1],t);g.gain.exponentialRampToValueAtTime(.001,t+1.8/(i+1)+.25);
+o.connect(g);g.connect(out);o.start(t);o.stop(t+d+.7)});
+var b=c.createOscillator(),bg=c.createGain();b.type="triangle";b.frequency.value=f*.5;bg.gain.setValueAtTime(.1,t);bg.gain.exponentialRampToValueAtTime(.001,t+.12);b.connect(bg);bg.connect(out);b.start(t);b.stop(t+.15)}
+function slide(a,b,s){var c=ac(),t=c.currentTime,o=c.createOscillator(),g=c.createGain();o.type="sine";
+o.frequency.setValueAtTime(fr(a),t);o.frequency.linearRampToValueAtTime(fr(b),t+s);o.frequency.linearRampToValueAtTime(fr(a),t+2*s);
+g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16,t+.2);g.gain.setValueAtTime(.16,t+2*s-.3);g.gain.linearRampToValueAtTime(0,t+2*s);
+o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+2*s+.05)}
+function click(t,acc){var c=ac(),o=c.createOscillator(),g=c.createGain();o.type="square";o.frequency.value=acc?1600:1000;
+g.gain.setValueAtTime(.18,t);g.gain.exponentialRampToValueAtTime(.001,t+.05);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.06)}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
+function seqOf(e){return OV[e.id]||e.q}
+async function play(e,id){
+var root=+SET.root,up=+SET.up,beat=60000/(+SET.bpm),off=0,dir=1;
+if(e.ty==="glide"){while(run===id){slide(root,root+e.ga[0],e.ga[1]);await sleep(2*e.ga[1]*1000+600)}return}
+if(e.ty!=="seq")return;
+while(run===id){var q=seqOf(e);
+ for(var i=0;i<q.length&&run===id;i++){var last=i===q.length-1;piano(root+off+q[i],(last?2:1)*beat/1000);await sleep(last?2*beat:beat)}
+ await sleep(beat*.6);off+=dir;if(off>=up)dir=-1;if(off<=0)dir=1}}
+function stop(){run++;clearInterval(iv);iv=null;var g=$("go");if(g)g.textContent="Štart"}
+function fmt(s){return Math.floor(s/60)+":"+("0"+(s%60)).slice(-2)}
+function all(c){return EX.filter(function(e){return e.c===c}).concat(CUS.filter(function(e){return e.c===c}))}
+function home(){stop();mstop();cur=null;
+$("app").innerHTML="<h1>Spev</h1><p class=\"sub\">Vyber, čo dnes robíš.</p>"+
+CATS.map(function(c){return "<button class=\"big\" data-c=\""+c.id+"\"><b>"+c.n+"</b><span>"+c.d+"</span></button>"}).join("")+
+"<p class=\"warn\">Hlasitosť max. 60 %. Škrabanie, bolesť alebo chrapot: skonči. iPhone: Web Audio ide cez vypínač stlmenia, daj ho do hlasitého režimu.</p>";
+document.querySelectorAll("[data-c]").forEach(function(b){b.onclick=function(){b.dataset.c==="metro"?metro():list(b.dataset.c)}})}
+function list(c){stop();var cat=CATS.filter(function(x){return x.id===c})[0],a=all(c);
+$("app").innerHTML="<button class=\"back\" id=\"bk\">‹ Späť</button><h1>"+cat.n+"</h1>"+
+a.map(function(e){return "<button class=\"big\" data-i=\""+e.id+"\"><b>"+esc(e.t)+"</b><span>"+e.m+" min"+(e.car?" · aj v aute":"")+"</span></button>"}).join("")+
+"<button class=\"big\" id=\"add\"><b>+ Vlastné cvičenie</b></button>";
+$("bk").onclick=home;$("add").onclick=function(){form(c)};
+document.querySelectorAll("[data-i]").forEach(function(b){b.onclick=function(){player(a.filter(function(e){return e.id===b.dataset.i})[0],c)}})}
+function player(e,c){stop();cur=e;left=e.m*60;var ro="";for(var m=43;m<=55;m++)ro+="<option value=\""+m+"\""+(m==SET.root?" selected":"")+">"+NOTES[m%12]+(Math.floor(m/12)-1)+"</option>";
+var seq=e.ty==="seq";
+$("app").innerHTML="<button class=\"back\" id=\"bk\">‹ Späť</button><h2>"+esc(e.t)+"</h2>"+
+"<div><span class=\"tag\">"+e.m+" min</span>"+(e.sy?"<span class=\"tag\">"+esc(e.sy)+"</span>":"")+"</div>"+
+"<div class=\"card\"><div class=\"time\" id=\"time\">"+fmt(left)+"</div><div class=\"row\"><button id=\"rs\">Reset</button><button id=\"go\" class=\"p\">Štart</button></div></div>"+
+(e.ty!=="none"?"<div class=\"card g\"><div><label for=\"rt\">Začiatočný tón</label><select id=\"rt\">"+ro+"</select></div>"+
+"<div><label for=\"bp\">Tempo: <span id=\"bv\">"+SET.bpm+"</span></label><input id=\"bp\" type=\"range\" min=\"40\" max=\"120\" value=\""+SET.bpm+"\"></div>"+
+"<div style=\"grid-column:1/3\"><label for=\"up\">Stúpanie: <span id=\"uv\">"+SET.up+"</span> poltónov</label><input id=\"up\" type=\"range\" min=\"2\" max=\"12\" value=\""+SET.up+"\"></div>"+
+(seq?"<div style=\"grid-column:1/3\"><label for=\"pt\">Pattern (poltóny od základu, čiarkou)</label><input id=\"pt\" value=\""+seqOf(e).join(",")+"\"><button class=\"x\" id=\"pr\" style=\"margin-top:6px\">Pôvodný pattern</button></div>":"")+"</div>":"")+
+"<h3>Ako na to</h3><ol>"+e.ak.map(function(x){return "<li>"+esc(x)+"</li>"}).join("")+"</ol>"+
+"<h3>Na čo sa zamerať</h3><ul>"+(e.fo||[]).map(function(x){return "<li>"+esc(x)+"</li>"}).join("")+"</ul>"+
+(e.pr?"<h3>Predstav si</h3><p>"+esc(e.pr)+"</p>":"")+
+(e.ch&&e.ch.length?"<h3>Typické chyby</h3><ul>"+e.ch.map(function(x){return "<li>"+esc(x)+"</li>"}).join("")+"</ul>":"")+
+(e.car?"<h3>V aute</h3><p>"+esc(e.car)+"</p>":"")+
+(e.cus?"<p><button class=\"x\" id=\"del\">Zmazať toto cvičenie</button></p>":"");
+$("bk").onclick=function(){list(c)};
+$("rs").onclick=function(){stop();left=e.m*60;$("time").textContent=fmt(left)};
+$("go").onclick=function(){if(iv){stop();return}var id=++run;$("go").textContent="Pauza";ac();play(e,id);
+ iv=setInterval(function(){left--;$("time").textContent=fmt(Math.max(left,0));if(left<=0){stop();piano(72,1);$("time").textContent="Hotovo"}},1000)};
+if(e.ty!=="none"){$("rt").onchange=function(){SET.root=+this.value;sv("set",SET)};
+ $("bp").oninput=function(){SET.bpm=+this.value;$("bv").textContent=this.value;sv("set",SET)};
+ $("up").oninput=function(){SET.up=+this.value;$("uv").textContent=this.value;sv("set",SET)}}
+if(seq){$("pt").onchange=function(){var a=this.value.split(",").map(function(x){return parseInt(x,10)}).filter(function(x){return !isNaN(x)});
+ if(a.length){OV[e.id]=a;sv("ov",OV)}};
+ $("pr").onclick=function(){delete OV[e.id];sv("ov",OV);$("pt").value=e.q.join(",")}}
+if(e.cus)$("del").onclick=function(){CUS=CUS.filter(function(x){return x.id!==e.id});sv("cus",CUS);list(c)}}
+function form(c){$("app").innerHTML="<button class=\"back\" id=\"bk\">‹ Späť</button><h2>Vlastné cvičenie</h2><div class=\"card\">"+
+"<label for=\"n\">Názov</label><input id=\"n\"><label for=\"mi\" style=\"margin-top:10px\">Minúty</label><input id=\"mi\" type=\"number\" value=\"3\" min=\"1\">"+
+"<label for=\"q\" style=\"margin-top:10px\">Pattern v poltónoch (napr. 0,2,4,5,7,5,4,2,0), prázdne = bez tónov</label><input id=\"q\">"+
+"<label for=\"sy\" style=\"margin-top:10px\">Slabika</label><input id=\"sy\">"+
+"<label for=\"ak\" style=\"margin-top:10px\">Ako na to (jeden krok na riadok)</label><textarea id=\"ak\" rows=\"4\"></textarea>"+
+"<button class=\"p\" id=\"sv\" style=\"margin-top:12px;width:100%\">Uložiť</button></div>";
+$("bk").onclick=function(){list(c)};
+$("sv").onclick=function(){var n=$("n").value.trim();if(!n)return;
+ var q=$("q").value.split(",").map(function(x){return parseInt(x,10)}).filter(function(x){return !isNaN(x)});
+ var ak=$("ak").value.split("\n").filter(function(x){return x.trim()});
+ CUS.push({id:"u"+Date.now(),c:c,t:n,m:Math.max(1,+$("mi").value||3),ty:q.length?"seq":"none",q:q,sy:$("sy").value,ak:ak.length?ak:["Vlastné cvičenie."],fo:[],cus:1});
+ sv("cus",CUS);list(c)}}
+var M={on:false,next:0,beat:0,t:null};
+function mstop(){M.on=false;clearInterval(M.t);var g=$("mgo");if(g)g.textContent="Štart"}
+function mshow(b,gap,bar,bpb){var d=document.querySelectorAll(".dots i");d.forEach(function(x,i){x.className=(i===b&&(!gap||$("ms").checked))?"on":""});
+$("ml").textContent=gap?"TICHO – tlieskaj ďalej":"KLIK – tlieskaj s ním";$("mb2").textContent="takt "+(bar+1)}
+function metro(){stop();mstop();
+$("app").innerHTML="<button class=\"back\" id=\"bk\">‹ Späť</button><h1>Gap metronóm</h1>"+
+"<div class=\"card\"><div class=\"dots\" id=\"dots\"></div><div class=\"lab\" id=\"ml\">pripravený</div><div class=\"lab mute\" id=\"mb2\"></div>"+
+"<button class=\"p\" id=\"mgo\" style=\"width:100%;margin-top:12px\">Štart</button></div>"+
+"<div class=\"card g\"><div style=\"grid-column:1/3\"><label for=\"mb\">Tempo: <span id=\"mbv\">80</span> BPM</label><input id=\"mb\" type=\"range\" min=\"40\" max=\"180\" value=\"80\"></div>"+
+"<div><label for=\"mp\">Doby v takte</label><select id=\"mp\"><option>2</option><option>3</option><option selected>4</option></select></div>"+
+"<div><label for=\"mc\">Takty s klikom</label><select id=\"mc\"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></div>"+
+"<div><label for=\"mg\">Takty ticha (gap)</label><select id=\"mg\"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></div>"+
+"<div><label for=\"ms\">Ukázať doby v tichu</label><input id=\"ms\" type=\"checkbox\" style=\"width:auto\"></div></div>"+
+"<h3>Ako cvičiť</h3><ol><li>V taktoch s klikom tlieskaj na každú dobu.</li><li>Keď klik zmizne, tlieskaj ďalej rovnakým tempom, nesprávaj sa podľa dots.</li><li>Keď klik zasa príde, skontroluj, či tlieskaš presne s ním.</li></ol>"+
+"<h3>Na čo sa zamerať</h3><ul><li>Spievaj si doby v hlave alebo ich ľahko našlapuj nohou.</li><li>Rýchle tempo 140+: počítaj ako polovičné (1 klik = 2 doby) a tlieskaj osminy.</li><li>Tempo zvyš o 3–5 BPM až keď máš 85 % dvakrát za sebou.</li></ul>"+
+"<h3>Týždenný test</h3><p class=\"mute\">Fixné tempo (napr. 80), 10 okruhov. Spočítaj, v koľkých si trafil klik a zapíš.</p>"+
+"<div class=\"card g\"><div><label for=\"lb\">BPM</label><input id=\"lb\" type=\"number\" value=\"80\"></div><div><label for=\"lp\">Úspešnosť %</label><input id=\"lp\" type=\"number\" min=\"0\" max=\"100\"></div>"+
+"<button class=\"p\" id=\"lg\" style=\"grid-column:1/3\">Zapísať test</button></div><div id=\"lst\"></div>";
+for(var i=0;i<4;i++){$("dots").appendChild(document.createElement("i"))}
+$("bk").onclick=home;
+$("mb").oninput=function(){$("mbv").textContent=this.value;$("lb").value=this.value};
+$("mp").onchange=function(){var n=+this.value,d=$("dots");d.innerHTML="";for(var i=0;i<n;i++)d.appendChild(document.createElement("i"))};
+$("mp").onchange.call($("mp"));
+$("mgo").onclick=function(){if(M.on){mstop();return}ac();M.on=true;M.beat=0;M.next=ctx.currentTime+.15;this.textContent="Stop";
+ M.t=setInterval(function(){var bpb=+$("mp").value,cb=+$("mc").value,gb=+$("mg").value,spb=60/(+$("mb").value);
+  while(M.next<ctx.currentTime+.12){var tot=(cb+gb)*bpb,i=M.beat%tot,bar=Math.floor(i/bpb),b=i%bpb,gap=bar>=cb;
+   if(!gap)click(M.next,b===0);
+   (function(w,b,gap,bar){setTimeout(function(){if(M.on)mshow(b,gap,bar,bpb)},Math.max(0,(w-ctx.currentTime)*1000))})(M.next,b,gap,bar);
+   M.next+=spb;M.beat++}},25)};
+function rl(){$("lst").innerHTML=LOG.slice(-8).reverse().map(function(l){return "<div class=\"card\">"+esc(l.d)+": "+l.b+" BPM, "+l.p+" %</div>"}).join("")}
+rl();
+$("lg").onclick=function(){var p=+$("lp").value;if($("lp").value==="")return;LOG.push({d:new Date().toLocaleDateString("sk-SK"),b:+$("lb").value,p:p});sv("log",LOG);$("lp").value="";rl()}}
+home();
+</script>
+</body>
+</html>
